@@ -1,1094 +1,800 @@
 <!DOCTYPE html>
 <html lang="he" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>פוקימון מתמטיקה - הרפתקה לכיתה ג'</title>
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;600;700;800;900&family=Press+Start+2P&display=swap" rel="stylesheet">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>פוקימון מתמטיקה - כיתה ג'</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;600;700;800&family=Rubik:wght@700;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --poke-yellow: #ffcb05;
+      --poke-blue: #2a75bb;
+      --poke-dark-blue: #1c4b82;
+      --poke-red: #ee1515;
+      --bg-dark: #0f172a;
+      --card-bg: #ffffff;
+      --text-main: #1e293b;
+    }
 
-    <style>
-        * {
-            box-sizing: border-box;
-            user-select: none;
-            -webkit-tap-highlight-color: transparent;
-        }
+    * {
+      box-sizing: border-box;
+      user-select: none;
+    }
 
-        body {
-            font-family: 'Rubik', sans-serif;
-            background: linear-gradient(135deg, #1b2838 0%, #101721 100%);
-            min-height: 100vh;
-            color: #fff;
-            overflow-x: hidden;
-        }
+    body {
+      margin: 0;
+      padding: 16px;
+      font-family: 'Assistant', sans-serif;
+      background: radial-gradient(circle at top, #1e293b, #090d16);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
 
-        .pixel-font {
-            font-family: 'Press Start 2P', monospace;
-        }
+    #game-wrapper {
+      width: 100%;
+      max-width: 880px;
+      background: #f1f5f9;
+      border-radius: 24px;
+      overflow: hidden;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
+      border: 4px solid var(--poke-yellow);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
 
-        /* Screen shake & combat animations */
-        @keyframes shake {
-            0%, 100% { transform: translate(0, 0); }
-            20% { transform: translate(-8px, 6px); }
-            40% { transform: translate(8px, -6px); }
-            60% { transform: translate(-6px, -4px); }
-            80% { transform: translate(6px, 4px); }
-        }
+    /* סרגל עליון */
+    .top-header {
+      background: linear-gradient(90deg, #1d4ed8, #2563eb);
+      color: white;
+      padding: 14px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: 700;
+      font-size: 1.15rem;
+      border-bottom: 3px solid var(--poke-yellow);
+    }
 
-        .shake-animation {
-            animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both;
-        }
+    .stat-pill {
+      background: rgba(255, 255, 255, 0.18);
+      padding: 6px 14px;
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
 
-        @keyframes attackTackle {
-            0% { transform: translateX(0) scale(1); }
-            50% { transform: translateX(-35px) scale(1.1); }
-            100% { transform: translateX(0) scale(1); }
-        }
+    /* זירת הקרב */
+    .arena-box {
+      height: 260px;
+      background: linear-gradient(180deg, #38bdf8 0%, #7dd3fc 60%, #4ade80 60%, #22c55e 100%);
+      position: relative;
+      display: flex;
+      justify-content: space-between;
+      padding: 20px 40px;
+      overflow: hidden;
+      border-bottom: 4px solid #cbd5e1;
+    }
 
-        .player-attack {
-            animation: attackTackle 0.35s ease-in-out;
-        }
+    .combatant {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 45%;
+      position: relative;
+      z-index: 2;
+    }
 
-        @keyframes enemyTackle {
-            0% { transform: translateX(0) scale(1); }
-            50% { transform: translateX(35px) scale(1.1); }
-            100% { transform: translateX(0) scale(1); }
-        }
+    .hp-card {
+      background: rgba(255, 255, 255, 0.95);
+      padding: 8px 14px;
+      border-radius: 14px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      width: 100%;
+      max-width: 220px;
+      border: 2px solid #334155;
+    }
 
-        .enemy-attack {
-            animation: enemyTackle 0.35s ease-in-out;
-        }
+    .hp-header {
+      font-weight: 800;
+      font-size: 1rem;
+      display: flex;
+      justify-content: space-between;
+    }
 
-        @keyframes floatIdle {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-7px); }
-        }
+    .hp-bar-bg {
+      background: #e2e8f0;
+      height: 12px;
+      border-radius: 6px;
+      overflow: hidden;
+      margin-top: 6px;
+      border: 1px solid #94a3b8;
+    }
 
-        .idle-float {
-            animation: floatIdle 2.5s ease-in-out infinite;
-        }
+    .hp-bar-fill {
+      background: linear-gradient(90deg, #ef4444, #22c55e);
+      height: 100%;
+      width: 100%;
+      transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    }
 
-        /* Pokeball throw & capture animation */
-        @keyframes throwPokeball {
-            0% { transform: translate(120px, 120px) scale(0.2) rotate(0deg); opacity: 0; }
-            30% { opacity: 1; }
-            70% { transform: translate(-30px, -40px) scale(1.3) rotate(720deg); }
-            100% { transform: translate(0px, 0px) scale(1) rotate(1080deg); opacity: 1; }
-        }
+    .poke-img {
+      width: 130px;
+      height: 130px;
+      object-fit: contain;
+      filter: drop-shadow(0 10px 10px rgba(0,0,0,0.25));
+      transition: transform 0.25s ease;
+    }
 
-        .pokeball-throw {
-            animation: throwPokeball 0.9s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
-        }
+    /* אנימציות */
+    .anim-attack {
+      animation: tackle 0.4s ease-in-out;
+    }
+    .anim-hurt {
+      animation: hurt 0.5s ease-in-out;
+    }
+    @keyframes tackle {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.15) translateY(-12px); }
+      100% { transform: scale(1); }
+    }
+    @keyframes hurt {
+      0%, 100% { filter: drop-shadow(0 0 0 rgba(255,0,0,0)); }
+      50% { filter: drop-shadow(0 0 25px rgba(239, 68, 68, 1)) brightness(1.5); }
+    }
 
-        @keyframes pokeballWobble {
-            0%, 100% { transform: rotate(0deg); }
-            25% { transform: rotate(-25deg); }
-            75% { transform: rotate(25deg); }
-        }
+    /* לוח השאלות */
+    .quiz-container {
+      padding: 24px 30px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      flex-grow: 1;
+    }
 
-        .pokeball-wobble {
-            animation: pokeballWobble 0.5s ease-in-out 3;
-        }
+    .q-header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+    }
 
-        /* Custom scrollbar */
-        ::-webkit-scrollbar {
-            width: 6px;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #facc15;
-            border-radius: 4px;
-        }
-    </style>
+    .q-title-text {
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: #0f172a;
+      line-height: 1.45;
+      flex-grow: 1;
+    }
+
+    .audio-btn {
+      background: #2563eb;
+      color: white;
+      border: none;
+      width: 46px;
+      height: 46px;
+      border-radius: 50%;
+      font-size: 1.3rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 10px rgba(37, 99, 235, 0.35);
+      transition: all 0.2s;
+      flex-shrink: 0;
+    }
+    .audio-btn:hover {
+      background: #1d4ed8;
+      transform: scale(1.08);
+    }
+
+    /* איור סרגל */
+    .ruler-stage {
+      background: #fefce8;
+      border: 2px solid #ca8a04;
+      border-radius: 12px;
+      padding: 16px;
+      margin: 10px 0;
+    }
+    .pencil-item {
+      height: 28px;
+      background: linear-gradient(90deg, #f59e0b, #fbbf24);
+      border: 2px solid #78350f;
+      border-right: none;
+      position: relative;
+      margin-right: 16.66%; /* התחלה ב-2 מתוך 12 */
+      width: 50%; /* נמשך 6 יחידות עד 8 */
+      border-radius: 4px 0 0 4px;
+    }
+    .pencil-tip-wood {
+      position: absolute;
+      left: -22px;
+      top: -2px;
+      width: 0;
+      height: 0;
+      border-top: 15px solid transparent;
+      border-bottom: 15px solid transparent;
+      border-right: 22px solid #fde68a;
+    }
+    .pencil-tip-lead {
+      position: absolute;
+      left: -22px;
+      top: 4px;
+      width: 0;
+      height: 0;
+      border-top: 5px solid transparent;
+      border-bottom: 5px solid transparent;
+      border-right: 9px solid #0f172a;
+    }
+    .ruler-marks {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 14px;
+      border-top: 2px solid #78350f;
+      padding-top: 6px;
+      direction: ltr;
+    }
+    .mark {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #78350f;
+      text-align: center;
+      width: 20px;
+    }
+
+    /* שדות מענה */
+    .choices-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 14px;
+    }
+
+    .choice-card {
+      background: white;
+      border: 3px solid #cbd5e1;
+      padding: 16px;
+      font-size: 1.2rem;
+      font-weight: 700;
+      border-radius: 14px;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.2s;
+      font-family: inherit;
+    }
+    .choice-card:hover {
+      border-color: #2563eb;
+      background: #eff6ff;
+    }
+    .choice-card.selected {
+      border-color: #1d4ed8;
+      background: #dbeafe;
+      box-shadow: 0 0 0 2px #2563eb;
+    }
+
+    .input-row {
+      display: flex;
+      gap: 14px;
+      align-items: center;
+      font-size: 1.25rem;
+      font-weight: 700;
+    }
+
+    .custom-input {
+      font-family: inherit;
+      font-size: 1.4rem;
+      font-weight: 800;
+      text-align: center;
+      width: 150px;
+      padding: 10px;
+      border: 3px solid #94a3b8;
+      border-radius: 12px;
+      outline: none;
+    }
+    .custom-input:focus {
+      border-color: #2563eb;
+      box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.2);
+    }
+
+    /* כפתור הגשה */
+    .actions-bar {
+      margin-top: auto;
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    .check-btn {
+      background: linear-gradient(180deg, #22c55e, #16a34a);
+      color: white;
+      font-size: 1.3rem;
+      font-weight: 800;
+      border: none;
+      padding: 14px 40px;
+      border-radius: 14px;
+      cursor: pointer;
+      box-shadow: 0 6px 16px rgba(22, 163, 74, 0.35);
+      transition: all 0.2s;
+      font-family: inherit;
+    }
+    .check-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(22, 163, 74, 0.45);
+    }
+
+    /* מודל הסבר גדול של מורה פרטית */
+    .modal-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.8);
+      backdrop-filter: blur(5px);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 100;
+      padding: 24px;
+    }
+
+    .modal-box {
+      background: white;
+      width: 100%;
+      max-width: 720px;
+      max-height: 90vh;
+      overflow-y: auto;
+      border-radius: 24px;
+      box-shadow: 0 25px 50px rgba(0,0,0,0.4);
+      padding: 32px;
+      display: flex;
+      flex-direction: column;
+      border-top: 10px solid #2563eb;
+      animation: popIn 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+    }
+    @keyframes popIn {
+      from { transform: scale(0.9); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    .modal-box.correct { border-top-color: #22c55e; }
+    .modal-box.wrong { border-top-color: #ef4444; }
+
+    .teacher-title-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #eff6ff;
+      color: #1d4ed8;
+      font-weight: 800;
+      font-size: 1.05rem;
+      padding: 6px 16px;
+      border-radius: 20px;
+      align-self: flex-start;
+      margin-bottom: 12px;
+    }
+
+    .modal-status-text {
+      font-size: 1.7rem;
+      font-weight: 900;
+      margin-bottom: 12px;
+    }
+
+    .correct-ans-highlight {
+      background: #f8fafc;
+      border-right: 5px solid #2563eb;
+      padding: 14px 18px;
+      font-weight: 800;
+      font-size: 1.25rem;
+      color: #0f172a;
+      border-radius: 0 10px 10px 0;
+      margin-bottom: 16px;
+    }
+
+    .teacher-explanation-content {
+      font-size: 1.25rem;
+      line-height: 1.8;
+      color: #334155;
+      white-space: pre-line;
+      margin-bottom: 24px;
+    }
+
+    .modal-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: auto;
+      padding-top: 18px;
+      border-top: 2px solid #e2e8f0;
+      gap: 16px;
+    }
+
+    .listen-again-btn {
+      background: #f1f5f9;
+      color: #334155;
+      border: 2px solid #cbd5e1;
+      font-weight: 700;
+      padding: 12px 20px;
+      border-radius: 12px;
+      cursor: pointer;
+      font-size: 1.05rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-family: inherit;
+    }
+    .listen-again-btn:hover {
+      background: #e2e8f0;
+    }
+
+    .next-step-btn {
+      background: linear-gradient(180deg, #2563eb, #1d4ed8);
+      color: white;
+      border: none;
+      font-size: 1.25rem;
+      font-weight: 800;
+      padding: 14px 36px;
+      border-radius: 14px;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(37, 99, 235, 0.4);
+      font-family: inherit;
+    }
+    .next-step-btn:hover {
+      background: #1e40af;
+    }
+
+    /* מסך ניצחון */
+    #end-game-screen {
+      display: none;
+      text-align: center;
+      padding: 50px 20px;
+    }
+  </style>
 </head>
-<body class="flex flex-col items-center justify-between min-h-screen p-2 sm:p-4">
+<body>
 
-    <!-- Top Navigation Bar -->
-    <header class="w-full max-w-4xl flex items-center justify-between bg-slate-900/90 border-4 border-yellow-400 rounded-2xl p-3 shadow-xl backdrop-blur-md mb-2">
-        <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-full bg-red-600 border-2 border-white flex items-center justify-center shadow-inner relative overflow-hidden">
-                <div class="absolute top-0 w-full h-1/2 bg-red-500"></div>
-                <div class="absolute bottom-0 w-full h-1/2 bg-white"></div>
-                <div class="w-3.5 h-3.5 bg-white border-2 border-slate-900 rounded-full z-10"></div>
-            </div>
-            <div>
-                <h1 class="text-base sm:text-xl font-extrabold text-yellow-300 tracking-wide drop-shadow">פוקימון חשבון כיתה ג'</h1>
-                <p class="text-xs text-slate-300 font-semibold">מאמן: פיקאצ'ו המחשב!</p>
-            </div>
+<div id="game-wrapper">
+  <!-- סרגל סטטוס עליון -->
+  <div class="top-header">
+    <div class="stat-pill">⭐ ניקוד: <span id="val-score">0</span></div>
+    <div class="stat-pill">שאלה <span id="val-qnum">1</span> מתוך <span id="val-total">10</span></div>
+    <div class="stat-pill">🔥 רצף נכון: <span id="val-streak">0</span></div>
+  </div>
+
+  <!-- שדה הקרב -->
+  <div class="arena-box">
+    <!-- פוקימון יריב -->
+    <div class="combatant">
+      <div class="hp-card">
+        <div class="hp-header">
+          <span id="enemy-name-label">באלבזאור</span>
+          <span>יריב</span>
         </div>
-
-        <div class="flex items-center gap-4 text-xs sm:text-sm font-bold">
-            <div class="bg-slate-800 border-2 border-yellow-500/60 rounded-xl px-3 py-1.5 flex items-center gap-2 shadow">
-                <span>⭐ ניקוד:</span>
-                <span id="scoreDisplay" class="text-yellow-400 font-black text-base sm:text-lg">0</span>
-            </div>
-            <div class="bg-slate-800 border-2 border-amber-500/60 rounded-xl px-3 py-1.5 hidden sm:flex items-center gap-1.5 shadow">
-                <span>🔥 רצף:</span>
-                <span id="streakDisplay" class="text-orange-400 font-black text-base">0</span>
-            </div>
-            <button id="soundToggleBtn" onclick="toggleAudio()" class="bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl p-2 border-2 border-indigo-400 text-sm transition">
-                🔊
-            </button>
+        <div class="hp-bar-bg">
+          <div id="enemy-hp-bar" class="hp-bar-fill"></div>
         </div>
-    </header>
+      </div>
+      <img id="enemy-img" class="poke-img" src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/1.png" alt="Enemy">
+    </div>
 
-    <!-- Main Game Container -->
-    <main id="gameCard" class="w-full max-w-4xl bg-slate-900 border-4 border-slate-700 rounded-3xl shadow-2xl overflow-hidden flex flex-col relative transition-all">
-        
-        <!-- ARENA VIEWPORT -->
-        <div id="battleArena" class="relative h-64 sm:h-80 w-full overflow-hidden flex flex-col justify-between p-4 sm:p-6"
-             style="background: linear-gradient(180deg, #60a5fa 0%, #93c5fd 40%, #86efac 40%, #22c55e 100%);">
-            
-            <!-- Floating Clouds Background Decoration -->
-            <div class="absolute top-4 right-10 bg-white/70 rounded-full w-24 h-7 blur-[1px]"></div>
-            <div class="absolute top-10 left-12 bg-white/60 rounded-full w-32 h-9 blur-[1px]"></div>
-
-            <!-- ENEMY POKEMON SECTION (Top Left in RTL) -->
-            <div class="flex justify-between items-start z-10">
-                <!-- Enemy Info Plate -->
-                <div class="bg-slate-900/90 border-2 border-slate-300 rounded-2xl p-2.5 sm:p-3 w-44 sm:w-60 shadow-lg text-slate-100 backdrop-blur-sm">
-                    <div class="flex justify-between items-center mb-1">
-                        <span id="enemyName" class="font-extrabold text-sm sm:text-base text-yellow-300">באלבזאור</span>
-                        <span id="enemyLevel" class="text-[10px] sm:text-xs font-bold bg-slate-700 px-1.5 py-0.5 rounded text-yellow-400">רמה 3</span>
-                    </div>
-                    <!-- HP bar -->
-                    <div class="w-full bg-slate-700 rounded-full h-3 sm:h-3.5 border border-slate-600 overflow-hidden relative">
-                        <div id="enemyHpBar" class="bg-emerald-500 h-full w-full transition-all duration-500"></div>
-                    </div>
-                    <div class="text-[11px] font-semibold text-slate-300 flex justify-between mt-1">
-                        <span>חיים:</span>
-                        <span id="enemyHpText">100 / 100</span>
-                    </div>
-                </div>
-
-                <!-- Enemy Sprite Graphic -->
-                <div class="relative flex flex-col items-center">
-                    <div class="w-28 h-8 bg-green-900/30 rounded-[50%] blur-xs translate-y-24"></div>
-                    <div id="enemyPokemonSprite" class="w-28 h-28 sm:w-36 sm:h-36 idle-float transition-transform">
-                        <!-- Dynamic SVG Monster generated here -->
-                    </div>
-                    <!-- Pokeball overlay for capture -->
-                    <div id="capturePokeball" class="hidden absolute top-4 left-6 z-30">
-                        <svg class="w-20 h-20 drop-shadow-2xl" viewBox="0 0 100 100">
-                            <circle cx="50" cy="50" r="46" fill="#f87171" stroke="#1e293b" stroke-width="6"/>
-                            <path d="M 4 50 A 46 46 0 0 0 96 50 Z" fill="#ffffff" stroke="#1e293b" stroke-width="6"/>
-                            <line x1="4" y1="50" x2="96" y2="50" stroke="#1e293b" stroke-width="8"/>
-                            <circle cx="50" cy="50" r="14" fill="#ffffff" stroke="#1e293b" stroke-width="6"/>
-                            <circle cx="50" cy="50" r="6" fill="#f8fafc" />
-                        </svg>
-                    </div>
-                </div>
-            </div>
-
-            <!-- PLAYER SECTION (Bottom Right in RTL) -->
-            <div class="flex justify-between items-end z-10 mt-auto">
-                <!-- Player Sprite (Pikachu) -->
-                <div class="relative flex flex-col items-center">
-                    <div class="w-28 h-8 bg-green-900/40 rounded-[50%] blur-xs translate-y-24"></div>
-                    <div id="playerSprite" class="w-28 h-28 sm:w-36 sm:h-36 idle-float">
-                        <!-- Cute Pikachu SVG -->
-                        <svg viewBox="0 0 120 120" class="w-full h-full drop-shadow-lg">
-                            <!-- Tail -->
-                            <path d="M25 80 L15 65 L28 60 L20 40 L45 50" fill="#facc15" stroke="#78350f" stroke-width="3" stroke-linejoin="round"/>
-                            <!-- Body -->
-                            <ellipse cx="65" cy="75" rx="32" ry="28" fill="#facc15" stroke="#78350f" stroke-width="3"/>
-                            <!-- Ears -->
-                            <polygon points="45,45 30,10 52,32" fill="#facc15" stroke="#78350f" stroke-width="3"/>
-                            <polygon points="30,10 37,20 45,15" fill="#1e293b"/>
-                            <polygon points="85,45 102,12 78,32" fill="#facc15" stroke="#78350f" stroke-width="3"/>
-                            <polygon points="102,12 94,22 88,16" fill="#1e293b"/>
-                            <!-- Head -->
-                            <circle cx="65" cy="50" r="26" fill="#facc15" stroke="#78350f" stroke-width="3"/>
-                            <!-- Cheeks -->
-                            <circle cx="48" cy="58" r="6" fill="#ef4444"/>
-                            <circle cx="82" cy="58" r="6" fill="#ef4444"/>
-                            <!-- Eyes -->
-                            <circle cx="54" cy="46" r="4" fill="#0f172a"/>
-                            <circle cx="53" cy="44" r="1.5" fill="#ffffff"/>
-                            <circle cx="76" cy="46" r="4" fill="#0f172a"/>
-                            <circle cx="75" cy="44" r="1.5" fill="#ffffff"/>
-                            <!-- Nose & Smile -->
-                            <polygon points="65,51 63,49 67,49" fill="#000"/>
-                            <path d="M60 56 Q65 60 70 56" stroke="#000" stroke-width="2" fill="none" stroke-linecap="round"/>
-                            <!-- Hands -->
-                            <ellipse cx="50" cy="80" rx="6" ry="10" fill="#facc15" stroke="#78350f" stroke-width="2.5" transform="rotate(20 50 80)"/>
-                            <ellipse cx="80" cy="80" rx="6" ry="10" fill="#facc15" stroke="#78350f" stroke-width="2.5" transform="rotate(-20 80 80)"/>
-                            <!-- Feet -->
-                            <ellipse cx="52" cy="100" rx="9" ry="5" fill="#facc15" stroke="#78350f" stroke-width="2.5"/>
-                            <ellipse cx="78" cy="100" rx="9" ry="5" fill="#facc15" stroke="#78350f" stroke-width="2.5"/>
-                        </svg>
-                    </div>
-                </div>
-
-                <!-- Player Info Plate -->
-                <div class="bg-slate-900/90 border-2 border-yellow-400 rounded-2xl p-2.5 sm:p-3 w-44 sm:w-60 shadow-lg text-slate-100 backdrop-blur-sm">
-                    <div class="flex justify-between items-center mb-1">
-                        <span class="font-extrabold text-sm sm:text-base text-yellow-300">פיקאצ'ו שלכם ⚡</span>
-                        <span class="text-[10px] sm:text-xs font-bold bg-amber-500/20 text-yellow-300 px-1.5 py-0.5 rounded border border-yellow-500">חבר אמת</span>
-                    </div>
-                    <div class="w-full bg-slate-700 rounded-full h-3 sm:h-3.5 border border-slate-600 overflow-hidden">
-                        <div id="playerHpBar" class="bg-emerald-500 h-full w-full transition-all duration-500"></div>
-                    </div>
-                    <div class="text-[11px] font-semibold text-slate-300 flex justify-between mt-1">
-                        <span>כוח:</span>
-                        <span id="playerHpText">100 / 100</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Lightning Effect Overlay -->
-            <div id="lightningOverlay" class="hidden absolute inset-0 bg-yellow-200/40 pointer-events-none z-20 mix-blend-screen transition-opacity"></div>
+    <!-- פיקאצ'ו -->
+    <div class="combatant" style="justify-content: flex-end;">
+      <img id="player-img" class="poke-img" src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/25.png" alt="Pikachu">
+      <div class="hp-card">
+        <div class="hp-header">
+          <span>פיקאצ'ו שלך</span>
+          <span>מאמן</span>
         </div>
-
-        <!-- DIALOGUE / NARRATIVE BOX -->
-        <div class="bg-slate-950 border-t-4 border-yellow-400 px-4 py-3 min-h-[64px] flex items-center justify-between">
-            <div id="battleText" class="text-sm sm:text-base font-bold text-yellow-200 leading-snug">
-                פוקימון פראי הופיע! ענו על שאלת החשבון כדי לתקוף!
-            </div>
-            <div id="questionProgress" class="text-xs bg-slate-800 text-yellow-400 font-extrabold px-2.5 py-1 rounded-lg border border-slate-700 shrink-0 mr-2">
-                שאלה 1 / 16
-            </div>
+        <div class="hp-bar-bg">
+          <div id="player-hp-bar" class="hp-bar-fill"></div>
         </div>
+      </div>
+    </div>
+  </div>
 
-        <!-- MATH QUESTION & ACTION PANEL -->
-        <div class="p-4 sm:p-6 bg-slate-800 flex flex-col gap-4">
-            <!-- Question Box -->
-            <div class="bg-slate-900 border-2 border-yellow-500/50 rounded-2xl p-4 shadow-inner relative">
-                <div class="flex items-center gap-2 mb-2">
-                    <span id="categoryBadge" class="bg-blue-600 text-white text-[11px] font-black px-2.5 py-0.5 rounded-full">המבנה העשרוני</span>
-                    <span id="hintBadge" class="text-xs text-slate-400">פתרו במדויק כדי להטעין את מכת הברק!</span>
-                </div>
-                <div id="questionText" class="text-lg sm:text-2xl font-black text-white text-center py-2 leading-relaxed">
-                    טוען שאלה...
-                </div>
-                <!-- Visual Container for ruler / diagram if needed -->
-                <div id="visualAid" class="hidden flex justify-center items-center my-3 p-3 bg-slate-950 rounded-xl border border-slate-700"></div>
-            </div>
+  <!-- אזור השאלות -->
+  <div id="question-panel" class="quiz-container">
+    <div class="q-header-row">
+      <div id="q-text-display" class="q-title-text">טוען שאלה...</div>
+      <button class="audio-btn" title="הקרא שאלה" onclick="speakCurrentQuestion()">🔊</button>
+    </div>
 
-            <!-- Answers Selection Grid -->
-            <div id="answersGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <!-- Dynamically populated answer buttons -->
-            </div>
+    <div id="visual-element-holder"></div>
+    <div id="input-controls-holder"></div>
+
+    <div class="actions-bar">
+      <button id="submit-action-btn" class="check-btn" onclick="submitUserAnswer()">בדוק תשובה ⚡</button>
+    </div>
+  </div>
+
+  <!-- מסך סיום -->
+  <div id="end-game-screen">
+    <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/150.png" width="160" alt="Victory">
+    <h1 style="font-size: 2.4rem; color: #1e3a8a; margin: 16px 0;">כל הכבוד! סיימת את כל המבחן! 🏆</h1>
+    <p style="font-size: 1.3rem; color: #475569;">הוכחת הבנה מעולה בכל נושאי החזרה למבחן במתמטיקה לכיתה ג'!</p>
+    <div style="font-size: 1.9rem; font-weight: 800; color: #2563eb; margin: 24px 0;">
+      סך הכל ניקוד שצברת: <span id="final-score-val">0</span>
+    </div>
+    <button class="check-btn" onclick="location.reload()">שחק שוב מההתחלה 🔄</button>
+  </div>
+
+  <!-- חלון הסבר של המורה הפרטית -->
+  <div id="teacher-modal" class="modal-overlay">
+    <div id="modal-content-card" class="modal-box">
+      <div class="teacher-title-tag">👩‍🏫 שיעור עם המורה הפרטית</div>
+      <div id="modal-feedback-heading" class="modal-status-text">מעולה!</div>
+      <div id="modal-correct-solution" class="correct-ans-highlight">התשובה: </div>
+      <div id="modal-teacher-text" class="teacher-explanation-content">הסבר...</div>
+
+      <div class="modal-footer">
+        <button class="listen-again-btn" onclick="readExplanationAloud()">🔊 השמע הסבר שוב</button>
+        <button class="next-step-btn" onclick="dismissModalAndContinue()">הבנתי, בוא נמשיך! ⬅️</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // מנוע סאונד מובנה בארקייד
+  const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+  function beep(freq, type, duration, delay = 0) {
+    setTimeout(() => {
+      try {
+        const osc = audioContext.createOscillator();
+        const gain = audioContext.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, audioContext.currentTime);
+        gain.gain.setValueAtTime(0.15, audioContext.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration);
+        osc.connect(gain);
+        gain.connect(audioContext.destination);
+        osc.start();
+        osc.stop(audioContext.currentTime + duration);
+      } catch (e) {}
+    }, delay * 1000);
+  }
+
+  function sfxAttack() {
+    beep(587, 'sawtooth', 0.1, 0);
+    beep(440, 'triangle', 0.12, 0.08);
+    beep(880, 'square', 0.2, 0.16);
+  }
+  function sfxSuccess() {
+    beep(523, 'triangle', 0.12, 0);
+    beep(659, 'triangle', 0.12, 0.12);
+    beep(784, 'triangle', 0.25, 0.24);
+  }
+  function sfxWrong() {
+    beep(240, 'sawtooth', 0.2, 0);
+    beep(190, 'sawtooth', 0.3, 0.15);
+  }
+
+  // מנוע דיבור עברי
+  const speechSynth = window.speechSynthesis;
+  function speakSentence(text) {
+    if (!speechSynth) return;
+    speechSynth.cancel();
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = 'he-IL';
+    utterance.rate = 0.9;
+    speechSynth.speak(utterance);
+  }
+
+  // מאגר שאלות החזרה למבחן לכיתה ג'
+  const mathQuestions = [
+    {
+      title: "שאלה מילולית: עוגיות ושקיות",
+      text: "דנה הכינה 30 עוגיות. היא ארזה אותן בשקיות ובהן 5 עוגיות בכל שקית. בכמה שקיות השתמשה?",
+      type: "number",
+      correct: "6",
+      answerDisplay: "6 שקיות (תרגיל: 30 לחלק ל-5 שווה 6)",
+      explanation: "בואו נחשוב ביחד על ההיגיון כמו בשיעור פרטי:\nיש לדנה ערימה גדולה של 30 עוגיות. היא לא מחלקת אותן סתם, אלא אורזת בדיוק 5 עוגיות בכל שקית.\nכשאנחנו רוצים לדעת לכמה קבוצות שוות מתחלקת כמות כוללת, אנחנו משתמשים בפעולת חילוק!\nאנחנו שואלים את עצמנו: כמה שקיות של 5 נכנסות בתוך 30?\nמלוח הכפל אנחנו יודעים ש-5 כפול 6 שווה בדיוק 30.\nלכן דנה השתמשה בדיוק ב-6 שקיות!"
+    },
+    {
+      title: "השוואת תרגילים במבט עין (בלי לפתור!): חיבור",
+      text: "השלימו סימן מתאים (גדול מ-, קטן מ-, או שווה ל-):\n76 + 245 _____ 76 + 248",
+      type: "choice",
+      options: [
+        { label: "76 + 245 קטן מ- 76 + 248  (<)", value: "<" },
+        { label: "76 + 245 גדול מ- 76 + 248  (>)", value: ">" },
+        { label: "התרגילים שווים  (=)", value: "=" }
+      ],
+      correct: "<",
+      answerDisplay: "קטן מ- (<)",
+      explanation: "איך אלופי מתמטיקה בכיתה ג' פותרים את זה בלי לחשב בכלל?\nשימו לב לשני התרגילים: בשני הצדדים יש לנו בדיוק את אותו המספר - 76!\nעכשיו נשווה רק את המספר השני: בצד שמאל מוסיפים לו 245, ובצד ימין מוסיפים לו 248.\nברור שאם ניקח את אותו המספר ונוסיף לו כמות גדולה יותר (248), נקבל תוצאה גדולה יותר!\nלכן צד שמאל קטן מצד ימין."
+    },
+    {
+      title: "השוואת תרגילי כפל עם 0 (בלי לחשב!)",
+      text: "השלימו סימן מתאים (גדול מ-, קטן מ-, או שווה ל-):\n5 × 20 _____ 20 × 5",
+      type: "choice",
+      options: [
+        { label: "שווה ל- (=)", value: "=" },
+        { label: "גדול מ- (>)", value: ">" },
+        { label: "קטן מ- (<)", value: "<" }
+      ],
+      correct: "=",
+      answerDisplay: "שווה ל- (=)",
+      explanation: "במתמטיקה יש חוק נפלא שנקרא 'חוק החילוף בכפל'.\nבדיוק כמו ש-2 כפול 4 שווה ל-4 כפול 2, כך גם 5 פעמים 20 שווה בדיוק ל-20 פעמים 5!\nכשמשנים את סדר המספרים בכפל, התוצאה נשארת תמיד בדיוק אותה התוצאה, ולכן הם שווים."
+    },
+    {
+      title: "השוואה חכמה: כפל",
+      text: "השלימו סימן מתאים:\n4 × 7 _____ 3 × 9",
+      type: "choice",
+      options: [
+        { label: "4 × 7 גדול מ- 3 × 9  (>)", value: ">" },
+        { label: "4 × 7 קטן מ- 3 × 9  (<)", value: "<" },
+        { label: "שניהם שווים  (=)", value: "=" }
+      ],
+      correct: ">",
+      answerDisplay: "גדול מ- (>)",
+      explanation: "בואו נבדוק בעזרת לוח הכפל:\n4 כפול 7 הם 28.\n3 כפול 9 הם 27.\nמכיוון ש-28 גדול מ-27 באחד, הרי ש-4 כפול 7 גדול מ-3 כפול 9!"
+    },
+    {
+      title: "מדידת אורך עיפרון בסרגל",
+      text: "הביטו בסרגל: העיפרון מתחיל במספר 2 ומסתיים בדיוק במספר 8. מהו אורך העיפרון בסנטימטרים?",
+      type: "ruler",
+      correct: "6",
+      answerDisplay: "6 סנטימטרים (חישוב: 8 פחות 2 = 6)",
+      explanation: "שימו לב היטב: זו המלכודת הכי נפוצה במבחנים!\nהרבה תלמידים רואים שהחוד מגיע ל-8 וכותבים 8 ס\"מ. אבל העיפרון לא התחיל באפס! הוא התחיל ב-2.\nכדי לדעת את האורך האמיתי, אנחנו סופרים כמה סנטימטרים הוא משתרע: מ-2 עד 8 יש בדיוק 6 צעדים.\nאו בתרגיל: 8 פחות 2 שווה 6 סנטימטרים."
+    },
+    {
+      title: "המבנה העשרוני",
+      text: "הקיפו את הייצוג המתאים למספר 836:",
+      type: "choice",
+      options: [
+        { label: "83 עשרות ו-6 יחידות", value: "A" },
+        { label: "83 מאות ו-6 יחידות", value: "B" },
+        { label: "8 מאות ו-36 עשרות", value: "C" }
+      ],
+      correct: "A",
+      answerDisplay: "83 עשרות ו-6 יחידות",
+      explanation: "בואו נפרק את זה להגיון של עשרות ומאות:\nעשרת אחת שווה 10, לכן 83 עשרות שוות ל-83 כפול 10, שזה 830.\nאם נוסיף ל-830 עוד 6 יחידות, נקבל בדיוק 836!\nתשובה ב' לא נכונה כי 83 מאות זה 8,300. תשובה ג' לא נכונה כי 36 עשרות זה 360, ועוד 800 נקבל 1,160."
+    },
+    {
+      title: "מציאת נעלם בחילוק",
+      text: "השלימו את המספר החסר: 35 לחלק ל-____ שווה 7",
+      type: "number",
+      correct: "5",
+      answerDisplay: "5",
+      explanation: "בכל פעם שיש לנו נעלם בחילוק, אנחנו חושבים על הפעולה ההפוכה - כפל!\nנשאל את עצמנו: איזה מספר אם נכפיל אותו ב-7 ייתן 35?\nאנחנו זוכרים ש-5 כפול 7 שווה בדיוק 35, ולכן המספר החסר בתרגיל הוא 5."
+    },
+    {
+      title: "השלמת סדרה בקפיצות שוות",
+      text: "השלימו את המספר הבא בסדרה: 426, 436, 446, ____",
+      type: "number",
+      correct: "456",
+      answerDisplay: "456",
+      explanation: "בסדרות תמיד בודקים מה השתנה בין מספר למספר:\nמ-426 ל-436 גדלנו ב-10.\nמ-436 ל-446 שוב גדלנו ב-10.\nספרת המאות נשארת 4, ספרת האחדות נשארת 6, ורק ספרת העשרות קופצת ב-1. לכן אם נוסיף 10 ל-446 נקבל 456!"
+    },
+    {
+      title: "שאלה מילולית: חלוקת מדבקות",
+      text: "בסדנת יצירה השתתפו 24 ילדים. כל ילד קיבל 4 מדבקות. איזה תרגיל מתאים למציאת סך כל המדבקות שחולקו?",
+      type: "choice",
+      options: [
+        { label: "24 × 4", value: "mult" },
+        { label: "24 + 4", value: "add" },
+        { label: "24 ÷ 4", value: "div" }
+      ],
+      correct: "mult",
+      answerDisplay: "24 × 4 (סך הכל 96 מדבקות)",
+      explanation: "נצייר את הסיפור בראש: ילד ראשון מקבל 4, ילד שני מקבל 4, ילד שלישי מקבל 4... כך עבור כל 24 הילדים!\nכשיש לנו אותה כמות (4) שחוזרת על עצמה שוב ושוב 24 פעמים, זוהי בדיוק ההגדרה של כפל: 24 כפול 4."
+    },
+    {
+      title: "מציאת נעלם בחיסור",
+      text: "השלימו את המספר החסר: ____ פחות 27 שווה 27",
+      type: "number",
+      correct: "54",
+      answerDisplay: "54",
+      explanation: "נחשוב על זה ככה: היה לנו שלם גדול, לקחנו ממנו 27, ונשארנו עם 27 ביד.\nכדי לדעת כמה היה לנו בהתחלה לפני שלקחנו, נחבר בחזרה את מה שנשאר עם מה שלקחנו:\n27 ועוד 27 שווה 54!"
+    }
+  ];
+
+  const enemyRoster = [
+    { name: "באלבזאור", img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/1.png" },
+    { name: "צ'ארמנדר", img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/4.png" },
+    { name: "סקוורטל", img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/7.png" },
+    { name: "גנגאר", img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/94.png" },
+    { name: "מיוטו", img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/150.png" }
+  ];
+
+  let currentQuestionIndex = 0;
+  let playerTotalScore = 0;
+  let correctStreak = 0;
+  let activeSelectedChoice = null;
+  let currentEnemyHp = 100;
+
+  function startGame() {
+    currentQuestionIndex = 0;
+    playerTotalScore = 0;
+    correctStreak = 0;
+    document.getElementById('val-total').innerText = mathQuestions.length;
+    renderCurrentQuestion();
+  }
+
+  function renderCurrentQuestion() {
+    activeSelectedChoice = null;
+    const q = mathQuestions[currentQuestionIndex];
+
+    document.getElementById('val-qnum').innerText = currentQuestionIndex + 1;
+    document.getElementById('q-text-display').innerText = q.text;
+
+    // עדכון פוקימון יריב
+    const enemyStage = enemyRoster[Math.min(Math.floor((currentQuestionIndex / mathQuestions.length) * enemyRoster.length), enemyRoster.length - 1)];
+    document.getElementById('enemy-name-label').innerText = enemyStage.name;
+    document.getElementById('enemy-img').src = enemyStage.img;
+
+    const visualHolder = document.getElementById('visual-element-holder');
+    visualHolder.innerHTML = '';
+
+    if (q.type === 'ruler') {
+      visualHolder.innerHTML = `
+        <div class="ruler-stage">
+          <div class="pencil-item">
+            <div class="pencil-tip-wood"></div>
+            <div class="pencil-tip-lead"></div>
+          </div>
+          <div class="ruler-marks">
+            ${Array.from({length: 13}, (_, i) => `<div class="mark">|<div>${i}</div></div>`).join('')}
+          </div>
         </div>
-
-        <!-- CATCH / REWARD POPUP MODAL -->
-        <div id="rewardModal" class="hidden absolute inset-0 bg-slate-950/90 z-40 flex flex-col items-center justify-center p-6 text-center backdrop-blur-md">
-            <div class="w-24 h-24 mb-4 relative pokeball-wobble">
-                <svg viewBox="0 0 100 100" class="w-full h-full drop-shadow">
-                    <circle cx="50" cy="50" r="45" fill="#ef4444" stroke="#000" stroke-width="6"/>
-                    <path d="M 5 50 A 45 45 0 0 0 95 50 Z" fill="#ffffff" stroke="#000" stroke-width="6"/>
-                    <line x1="5" y1="50" x2="95" y2="50" stroke="#000" stroke-width="8"/>
-                    <circle cx="50" cy="50" r="14" fill="#ffffff" stroke="#000" stroke-width="6"/>
-                    <circle cx="50" cy="50" r="6" fill="#1e293b"/>
-                </svg>
-            </div>
-            <h2 id="modalTitle" class="text-2xl sm:text-3xl font-black text-yellow-300 mb-2">יש! הפוקימון נתפס בהצלחה! 🎉</h2>
-            <p id="modalDesc" class="text-slate-200 text-sm sm:text-base max-w-md mb-6">פתרתם מצוין והוכחתם ידע מדהים בחשבון!</p>
-            <button onclick="nextBattle()" class="bg-gradient-to-r from-yellow-400 to-amber-500 hover:from-yellow-300 hover:to-amber-400 text-slate-950 font-black text-lg px-8 py-3.5 rounded-2xl shadow-xl transform active:scale-95 transition">
-                לקרב הבא! ⚡
-            </button>
-        </div>
-
-        <!-- VICTORY FINAL SCREEN MODAL -->
-        <div id="victoryScreen" class="hidden absolute inset-0 bg-slate-950/95 z-50 flex flex-col items-center justify-center p-6 text-center">
-            <div class="text-5xl sm:text-6xl mb-3">🏆⚡⭐</div>
-            <h2 class="text-3xl sm:text-4xl font-black text-yellow-400 mb-2">אלופי הפוקימון במתמטיקה!</h2>
-            <p class="text-base sm:text-lg text-slate-200 mb-4 max-w-lg">
-                סיימתם את כל שאלות החזרה למבחן בהצלחה ענקית!
-            </p>
-            <div class="bg-slate-900 border-2 border-yellow-500 rounded-2xl p-4 mb-6 w-full max-w-sm">
-                <div class="flex justify-between py-1 border-b border-slate-800">
-                    <span class="text-slate-400 font-bold">ציון סופי:</span>
-                    <span id="finalScore" class="text-yellow-400 font-black text-xl">100</span>
-                </div>
-                <div class="flex justify-between py-1 border-b border-slate-800">
-                    <span class="text-slate-400 font-bold">פוקימונים שנתפסו:</span>
-                    <span id="finalCaptured" class="text-emerald-400 font-black text-xl">5/5</span>
-                </div>
-                <div class="flex justify-between py-1">
-                    <span class="text-slate-400 font-bold">דרגת מאמן:</span>
-                    <span class="text-purple-400 font-black">מאסטר חשבון 🎓</span>
-                </div>
-            </div>
-            <button onclick="restartGame()" class="bg-gradient-to-r from-emerald-500 to-teal-400 text-slate-950 font-extrabold text-lg px-8 py-4 rounded-2xl shadow-xl active:scale-95 transition">
-                שחקו שוב מההתחלה 🔄
-            </button>
-        </div>
-
-    </main>
-
-    <!-- Captured Pokemons Bar -->
-    <footer class="w-full max-w-4xl bg-slate-900/80 border-2 border-slate-700 rounded-2xl p-3 mt-2 shadow-lg backdrop-blur-sm">
-        <div class="flex items-center justify-between">
-            <div class="text-xs font-bold text-yellow-300">אוסף הפוקימונים שלכם:</div>
-            <div id="pokeballCollection" class="flex items-center gap-2">
-                <!-- 5 Pokeball slots -->
-            </div>
-        </div>
-    </footer>
-
-    <!-- AUDIO SYNTHESIZER (Web Audio API, no external files) -->
-    <script>
-        let audioCtx = null;
-        let soundEnabled = true;
-
-        function getAudioContext() {
-            if (!audioCtx) {
-                const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-                audioCtx = new AudioContextClass();
-            }
-            if (audioCtx.state === 'suspended') {
-                audioCtx.resume();
-            }
-            return audioCtx;
-        }
-
-        function toggleAudio() {
-            soundEnabled = !soundEnabled;
-            const btn = document.getElementById('soundToggleBtn');
-            btn.textContent = soundEnabled ? '🔊' : '🔇';
-            btn.className = soundEnabled 
-                ? 'bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl p-2 border-2 border-indigo-400 text-sm transition'
-                : 'bg-slate-700 text-slate-400 rounded-xl p-2 border-2 border-slate-600 text-sm transition';
-        }
-
-        // Sound effect generator functions
-        function playAttackSound() {
-            if (!soundEnabled) return;
-            try {
-                const ctx = getAudioContext();
-                const now = ctx.currentTime;
-                // Electrical Zap
-                const osc = ctx.createOscillator();
-                const gain = ctx.createGain();
-                osc.type = 'sawtooth';
-                osc.frequency.setValueAtTime(800, now);
-                osc.frequency.exponentialRampToValueAtTime(150, now + 0.25);
-                gain.gain.setValueAtTime(0.3, now);
-                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
-                osc.connect(gain);
-                gain.connect(ctx.destination);
-                osc.start(now);
-                osc.stop(now + 0.25);
-            } catch (e) { console.warn(e); }
-        }
-
-        function playHitSound() {
-            if (!soundEnabled) return;
-            try {
-                const ctx = getAudioContext();
-                const now = ctx.currentTime;
-                const osc = ctx.createOscillator();
-                const gain = ctx.createGain();
-                osc.type = 'square';
-                osc.frequency.setValueAtTime(160, now);
-                osc.frequency.linearRampToValueAtTime(40, now + 0.2);
-                gain.gain.setValueAtTime(0.35, now);
-                gain.gain.linearRampToValueAtTime(0.01, now + 0.2);
-                osc.connect(gain);
-                gain.connect(ctx.destination);
-                osc.start(now);
-                osc.stop(now + 0.2);
-            } catch (e) { console.warn(e); }
-        }
-
-        function playCorrectSound() {
-            if (!soundEnabled) return;
-            try {
-                const ctx = getAudioContext();
-                const now = ctx.currentTime;
-                const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
-                notes.forEach((freq, idx) => {
-                    const osc = ctx.createOscillator();
-                    const gain = ctx.createGain();
-                    osc.type = 'triangle';
-                    osc.frequency.value = freq;
-                    gain.gain.setValueAtTime(0.2, now + idx * 0.08);
-                    gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.08 + 0.2);
-                    osc.connect(gain);
-                    gain.connect(ctx.destination);
-                    osc.start(now + idx * 0.08);
-                    osc.stop(now + idx * 0.08 + 0.2);
-                });
-            } catch (e) { console.warn(e); }
-        }
-
-        function playWrongSound() {
-            if (!soundEnabled) return;
-            try {
-                const ctx = getAudioContext();
-                const now = ctx.currentTime;
-                const osc = ctx.createOscillator();
-                const gain = ctx.createGain();
-                osc.type = 'sawtooth';
-                osc.frequency.setValueAtTime(220, now);
-                osc.frequency.linearRampToValueAtTime(110, now + 0.35);
-                gain.gain.setValueAtTime(0.25, now);
-                gain.gain.linearRampToValueAtTime(0.01, now + 0.35);
-                osc.connect(gain);
-                gain.connect(ctx.destination);
-                osc.start(now);
-                osc.stop(now + 0.35);
-            } catch (e) { console.warn(e); }
-        }
-
-        function playCatchSound() {
-            if (!soundEnabled) return;
-            try {
-                const ctx = getAudioContext();
-                const now = ctx.currentTime;
-                const arpeggio = [440, 554.37, 659.25, 880, 1108.73];
-                arpeggio.forEach((f, i) => {
-                    const osc = ctx.createOscillator();
-                    const gain = ctx.createGain();
-                    osc.type = 'sine';
-                    osc.frequency.value = f;
-                    gain.gain.setValueAtTime(0.2, now + i * 0.1);
-                    gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.1 + 0.3);
-                    osc.connect(gain);
-                    gain.connect(ctx.destination);
-                    osc.start(now + i * 0.1);
-                    osc.stop(now + i * 0.1 + 0.3);
-                });
-            } catch (e) { console.warn(e); }
-        }
-    </script>
-
-    <!-- GAME DATA & LOGIC -->
-    <script>
-        // Pokemons to battle
-        const ENEMIES = [
-            {
-                name: "באלבזאור (Bulbasaur)",
-                level: 3,
-                maxHp: 60,
-                color: "#10b981",
-                badge: "עשב",
-                svg: `
-                <svg viewBox="0 0 120 120" class="w-full h-full drop-shadow-md">
-                    <!-- Bulb on back -->
-                    <path d="M60 25 C45 10 30 40 45 55 C60 65 75 60 75 45 C75 30 65 25 60 25 Z" fill="#15803d" stroke="#064e3b" stroke-width="3"/>
-                    <!-- Body -->
-                    <ellipse cx="60" cy="75" rx="35" ry="26" fill="#34d399" stroke="#065f46" stroke-width="3"/>
-                    <!-- Ears -->
-                    <polygon points="40,55 30,35 48,45" fill="#34d399" stroke="#065f46" stroke-width="3"/>
-                    <polygon points="80,55 90,35 72,45" fill="#34d399" stroke="#065f46" stroke-width="3"/>
-                    <!-- Head -->
-                    <circle cx="60" cy="58" r="24" fill="#34d399" stroke="#065f46" stroke-width="3"/>
-                    <!-- Eyes -->
-                    <ellipse cx="50" cy="54" rx="4" ry="6" fill="#ef4444" stroke="#7f1d1d" stroke-width="1.5"/>
-                    <circle cx="50" cy="52" r="1.5" fill="#fff"/>
-                    <ellipse cx="70" cy="54" rx="4" ry="6" fill="#ef4444" stroke="#7f1d1d" stroke-width="1.5"/>
-                    <circle cx="70" cy="52" r="1.5" fill="#fff"/>
-                    <!-- Spots -->
-                    <circle cx="48" cy="72" r="5" fill="#059669"/>
-                    <circle cx="72" cy="78" r="4" fill="#059669"/>
-                    <circle cx="62" cy="85" r="3" fill="#059669"/>
-                    <!-- Smile -->
-                    <path d="M54 64 Q60 68 66 64" stroke="#064e3b" stroke-width="2.5" fill="none" stroke-linecap="round"/>
-                    <!-- Legs -->
-                    <rect x="36" y="92" width="14" height="15" rx="6" fill="#34d399" stroke="#065f46" stroke-width="3"/>
-                    <rect x="70" y="92" width="14" height="15" rx="6" fill="#34d399" stroke="#065f46" stroke-width="3"/>
-                </svg>`
-            },
-            {
-                name: "צ'ארמנדר (Charmander)",
-                level: 5,
-                maxHp: 80,
-                color: "#f97316",
-                badge: "אש",
-                svg: `
-                <svg viewBox="0 0 120 120" class="w-full h-full drop-shadow-md">
-                    <!-- Tail flame -->
-                    <path d="M22 68 Q10 50 20 40 Q30 45 28 58 Z" fill="#ef4444"/>
-                    <circle cx="20" cy="48" r="6" fill="#facc15"/>
-                    <!-- Tail -->
-                    <path d="M25 75 Q32 82 45 82" stroke="#ea580c" stroke-width="7" fill="none" stroke-linecap="round"/>
-                    <!-- Body -->
-                    <ellipse cx="65" cy="75" rx="28" ry="26" fill="#fb923c" stroke="#c2410c" stroke-width="3"/>
-                    <!-- Belly patch -->
-                    <ellipse cx="65" cy="77" rx="16" ry="18" fill="#fef08a"/>
-                    <!-- Head -->
-                    <circle cx="65" cy="48" r="22" fill="#fb923c" stroke="#c2410c" stroke-width="3"/>
-                    <!-- Eyes -->
-                    <ellipse cx="56" cy="44" rx="4" ry="6" fill="#0284c7"/>
-                    <circle cx="56" cy="42" r="1.5" fill="#fff"/>
-                    <ellipse cx="74" cy="44" rx="4" ry="6" fill="#0284c7"/>
-                    <circle cx="74" cy="42" r="1.5" fill="#fff"/>
-                    <!-- Cute smile -->
-                    <path d="M60 54 Q65 58 70 54" stroke="#7c2d12" stroke-width="2" fill="none" stroke-linecap="round"/>
-                    <!-- Legs -->
-                    <ellipse cx="50" cy="98" rx="8" ry="6" fill="#fb923c" stroke="#c2410c" stroke-width="2"/>
-                    <ellipse cx="80" cy="98" rx="8" ry="6" fill="#fb923c" stroke="#c2410c" stroke-width="2"/>
-                </svg>`
-            },
-            {
-                name: "סקוורטל (Squirtle)",
-                level: 7,
-                maxHp: 100,
-                color: "#06b6d4",
-                badge: "מים",
-                svg: `
-                <svg viewBox="0 0 120 120" class="w-full h-full drop-shadow-md">
-                    <!-- Shell Back -->
-                    <ellipse cx="65" cy="74" rx="32" ry="28" fill="#b45309" stroke="#78350f" stroke-width="3"/>
-                    <!-- Curly Tail -->
-                    <path d="M25 80 Q15 70 25 60 Q32 68 28 78 Z" fill="#67e8f9" stroke="#0891b2" stroke-width="2.5"/>
-                    <!-- Body (front shell) -->
-                    <ellipse cx="64" cy="75" rx="24" ry="22" fill="#fef08a" stroke="#ca8a04" stroke-width="3"/>
-                    <line x1="50" y1="75" x2="78" y2="75" stroke="#ca8a04" stroke-width="2"/>
-                    <line x1="64" y1="58" x2="64" y2="92" stroke="#ca8a04" stroke-width="2"/>
-                    <!-- Head -->
-                    <circle cx="64" cy="44" r="23" fill="#67e8f9" stroke="#0891b2" stroke-width="3"/>
-                    <!-- Big eyes -->
-                    <ellipse cx="55" cy="42" rx="4.5" ry="6" fill="#991b1b"/>
-                    <circle cx="55" cy="40" r="2" fill="#fff"/>
-                    <ellipse cx="73" cy="42" rx="4.5" ry="6" fill="#991b1b"/>
-                    <circle cx="73" cy="40" r="2" fill="#fff"/>
-                    <!-- Smile -->
-                    <path d="M58 52 Q64 57 70 52" stroke="#0e7490" stroke-width="2.5" fill="none" stroke-linecap="round"/>
-                    <!-- Feet -->
-                    <ellipse cx="48" cy="98" rx="9" ry="6" fill="#67e8f9" stroke="#0891b2" stroke-width="2.5"/>
-                    <ellipse cx="80" cy="98" rx="9" ry="6" fill="#67e8f9" stroke="#0891b2" stroke-width="2.5"/>
-                </svg>`
-            },
-            {
-                name: "גנגאר (Gengar)",
-                level: 9,
-                maxHp: 110,
-                color: "#a855f7",
-                badge: "רוח",
-                svg: `
-                <svg viewBox="0 0 120 120" class="w-full h-full drop-shadow-md">
-                    <!-- Spikes & Ears -->
-                    <polygon points="35,35 25,10 45,25" fill="#7e22ce" stroke="#4c1d95" stroke-width="3"/>
-                    <polygon points="85,35 95,10 75,25" fill="#7e22ce" stroke="#4c1d95" stroke-width="3"/>
-                    <polygon points="50,25 60,12 70,25" fill="#7e22ce"/>
-                    <!-- Round body -->
-                    <ellipse cx="60" cy="65" rx="36" ry="34" fill="#9333ea" stroke="#581c87" stroke-width="3.5"/>
-                    <!-- Spooky Red Eyes -->
-                    <polygon points="40,50 54,55 45,60" fill="#ef4444"/>
-                    <polygon points="80,50 66,55 75,60" fill="#ef4444"/>
-                    <!-- Big Tooth Grin -->
-                    <path d="M35 70 Q60 88 85 70 Q60 76 35 70 Z" fill="#ffffff" stroke="#4c1d95" stroke-width="2"/>
-                    <line x1="48" y1="72" x2="48" y2="78" stroke="#4c1d95" stroke-width="1.5"/>
-                    <line x1="60" y1="73" x2="60" y2="80" stroke="#4c1d95" stroke-width="1.5"/>
-                    <line x1="72" y1="72" x2="72" y2="78" stroke="#4c1d95" stroke-width="1.5"/>
-                    <!-- Stubby feet -->
-                    <ellipse cx="42" cy="98" rx="10" ry="7" fill="#7e22ce" stroke="#4c1d95" stroke-width="2.5"/>
-                    <ellipse cx="78" cy="98" rx="10" ry="7" fill="#7e22ce" stroke="#4c1d95" stroke-width="2.5"/>
-                </svg>`
-            },
-            {
-                name: "מיוטו האגדי (Mewtwo BOSS)",
-                level: 12,
-                maxHp: 130,
-                color: "#ec4899",
-                badge: "בוס אגדי",
-                svg: `
-                <svg viewBox="0 0 120 120" class="w-full h-full drop-shadow-xl">
-                    <!-- Big purple tail -->
-                    <path d="M75 90 C110 85 105 45 85 55" stroke="#9333ea" stroke-width="14" fill="none" stroke-linecap="round"/>
-                    <!-- Body -->
-                    <ellipse cx="58" cy="72" rx="24" ry="28" fill="#e2e8f0" stroke="#475569" stroke-width="3"/>
-                    <ellipse cx="58" cy="80" rx="18" ry="16" fill="#a855f7" opacity="0.6"/>
-                    <!-- Head & horns -->
-                    <ellipse cx="58" cy="38" rx="18" ry="16" fill="#e2e8f0" stroke="#475569" stroke-width="3"/>
-                    <polygon points="45,28 40,16 49,24" fill="#a855f7"/>
-                    <polygon points="71,28 76,16 67,24" fill="#a855f7"/>
-                    <!-- Eyes glow -->
-                    <ellipse cx="50" cy="38" rx="3.5" ry="4.5" fill="#a855f7"/>
-                    <ellipse cx="66" cy="38" rx="3.5" ry="4.5" fill="#a855f7"/>
-                    <!-- Psychic aura -->
-                    <circle cx="58" cy="55" r="42" stroke="#f472b6" stroke-dasharray="6,6" stroke-width="2" fill="none" opacity="0.7"/>
-                </svg>`
-            }
-        ];
-
-        // 16 Questions accurately constructed directly from the provided 3rd grade test paper
-        const QUESTIONS = [
-            {
-                category: "המבנה העשרוני",
-                text: "נתון המספר 682.<br>איזה מספר גדול ממנו בדיוק ב-10?",
-                options: ["692", "782", "683", "672"],
-                correct: 0,
-                explanation: "מוסיפים 1 לעשרות: 8 עשרות ועוד עשרת אחת = 9 עשרות (692)."
-            },
-            {
-                category: "המבנה העשרוני",
-                text: "נתון המספר 682.<br>איזה מספר קטן ממנו בדיוק ב-100?",
-                options: ["782", "582", "672", "681"],
-                correct: 1,
-                explanation: "מורידים 1 מספרת המאות: 6 מאות פחות מאה אחת = 5 מאות (582)."
-            },
-            {
-                category: "המבנה העשרוני וערך המקום",
-                text: "איזה ייצוג מתאים במדויק למספר 836?",
-                options: [
-                    "83 עשרות ו-6 יחידות",
-                    "83 מאות ו-6 יחידות",
-                    "8 מאות ו-36 עשרות",
-                    "8 עשרות ו-36 יחידות"
-                ],
-                correct: 0,
-                explanation: "83 עשרות שוות ל-830, ועוד 6 יחידות = 836!"
-            },
-            {
-                category: "השוואת ביטויים ללא חישוב מלא",
-                text: "השלימו סימן מתאים:<br><span dir='ltr' class='font-black text-yellow-300 text-2xl'>76 + 245  ___  76 + 248</span>",
-                options: [
-                    "< (קטן מ-)",
-                    "> (גדול מ-)",
-                    "= (שווה ל-)"
-                ],
-                correct: 0,
-                explanation: "המספר 76 זהה בשני הצדדים, ומכיוון ש-245 קטן מ-248, גם הסכום קטן יותר (<)."
-            },
-            {
-                category: "סדרות בקפיצות שוות",
-                text: "השלימו את המספר הבא בסדרה:<br><span dir='ltr' class='font-black text-yellow-300 text-2xl'>426, 436, 446, ___</span>",
-                options: ["456", "447", "546", "466"],
-                correct: 0,
-                explanation: "הקפיצה היא קבועה של 10 בכל פעם: 446 + 10 = 456!"
-            },
-            {
-                category: "סדרות בקפיצות שוות",
-                text: "השלימו את המספר הראשון החסר בסדרה:<br><span dir='ltr' class='font-black text-yellow-300 text-2xl'>___, 580, 560, 540</span>",
-                options: ["600", "590", "570", "520"],
-                correct: 0,
-                explanation: "הסדרה יורדת ב-20 בכל שלב, ולכן לפניה המספר היה גדול ב-20: 580 + 20 = 600!"
-            },
-            {
-                category: "חיבור מספרים תלת-ספרתיים",
-                text: "פתרו את תרגיל החיבור:<br><span dir='ltr' class='font-black text-yellow-300 text-3xl'>347 + 231 = ?</span>",
-                options: ["578", "568", "678", "588"],
-                correct: 0,
-                explanation: "יחידות: 7+1=8, עשרות: 4+3=7, מאות: 3+2=5. סה״כ: 578."
-            },
-            {
-                category: "חיבור עם המרה (פריטה)",
-                text: "פתרו את התרגיל:<br><span dir='ltr' class='font-black text-yellow-300 text-3xl'>268 + 845 = ?</span>",
-                options: ["1,113", "1,013", "1,103", "1,123"],
-                correct: 0,
-                explanation: "8+5=13 (3 ושומרים 1), 6+4+1=11 (1 ושומרים 1), 2+8+1=11 -> 1,113!"
-            },
-            {
-                category: "חיסור עם עשרות שלמות",
-                text: "פתרו את התרגיל:<br><span dir='ltr' class='font-black text-yellow-300 text-3xl'>600 - 240 = ?</span>",
-                options: ["360", "440", "340", "460"],
-                correct: 0,
-                explanation: "600 פחות 200 זה 400, ופחות עוד 40 שווה בדיוק 360!"
-            },
-            {
-                category: "חיסור במאונך עם פריטה",
-                text: "פתרו את תרגיל החיסור:<br><span dir='ltr' class='font-black text-yellow-300 text-3xl'>752 - 138 = ?</span>",
-                options: ["614", "624", "616", "514"],
-                correct: 0,
-                explanation: "פורטים עשרת: 12 פחות 8 זה 4. נשארו 4 עשרות: 4-3=1. במאות: 7-1=6. התוצאה: 614!"
-            },
-            {
-                category: "לוח הכפל",
-                text: "כמה זה:<br><span dir='ltr' class='font-black text-yellow-300 text-3xl'>8 × 6 = ?</span>",
-                options: ["48", "42", "54", "56"],
-                correct: 0,
-                explanation: "לפי לוח הכפל: שמונה כפול שש שווה 48!"
-            },
-            {
-                category: "משוואות ונעלמים",
-                text: "איזה מספר חסר בתרגיל?<br><span dir='ltr' class='font-black text-yellow-300 text-3xl'>4 × ___ = 28</span>",
-                options: ["7", "6", "8", "9"],
-                correct: 0,
-                explanation: "28 חלקי 4 שווה 7, ולכן 4 × 7 = 28!"
-            },
-            {
-                category: "חילוק ונעלמים",
-                text: "איזה מספר משלים את התרגיל?<br><span dir='ltr' class='font-black text-yellow-300 text-3xl'>35 ÷ ___ = 7</span>",
-                options: ["5", "6", "4", "7"],
-                correct: 0,
-                explanation: "35 לחלק ל-5 שווה 7!"
-            },
-            {
-                category: "שאלה מילולית - מדבקות",
-                text: "בסדנת יצירה השתתפו 24 ילדים.<br>כל ילד קיבל 4 מדבקות. כמה מדבקות חולקו בסך הכול?",
-                options: ["96 מדבקות (24 × 4)", "28 מדבקות (24 + 4)", "6 מדבקות (24 ÷ 4)", "84 מדבקות"],
-                correct: 0,
-                explanation: "מכפילים את מספר הילדים במספר המדבקות לכל ילד: 24 × 4 = 96 מדבקות!"
-            },
-            {
-                category: "שאלה מילולית - עוגיות",
-                text: "דנה הכינה 30 עוגיות. היא ארזה אותן בשקיות עם 5 עוגיות בכל שקית.<br>בכמה שקיות השתמשה דנה?",
-                options: [
-                    "6 שקיות (30 ÷ 5 = 6)",
-                    "25 שקיות (30 - 5 = 25)",
-                    "150 שקיות (30 × 5 = 150)",
-                    "5 שקיות"
-                ],
-                correct: 0,
-                explanation: "חילוק לקבוצות שוות: 30 לחלק ל-5 עוגיות בכל שקית = 6 שקיות."
-            },
-            {
-                category: "מדידת אורך וסרגל",
-                text: "עיפרון הונח ליד סרגל.<br>הוא מתחיל במספר <strong>2 ס״מ</strong> ומסתיים בדיוק במספר <strong>8 ס״מ</strong>.<br>מהו אורך העיפרון?",
-                options: ["6 ס״מ (8 - 2)", "8 ס״מ", "10 ס״מ (8 + 2)", "7 ס״מ"],
-                correct: 0,
-                explanation: "העיפרון לא התחיל ב-0 אלא ב-2! לכן מחשבים את ההפרש: 8 פחות 2 = 6 ס״מ.",
-                hasRuler: true
-            }
-        ];
-
-        // Game State Variables
-        let currentQuestionIdx = 0;
-        let currentEnemyIdx = 0;
-        let score = 0;
-        let streak = 0;
-        let playerHp = 100;
-        let enemyCurrentHp = 0;
-        let caughtCount = 0;
-        let isProcessingAction = false;
-
-        // Initialize Pokeball collection slots UI
-        function initPokeballs() {
-            const container = document.getElementById('pokeballCollection');
-            container.innerHTML = '';
-            for (let i = 0; i < ENEMIES.length; i++) {
-                const ball = document.createElement('div');
-                ball.id = `pokeball-slot-${i}`;
-                ball.className = "w-7 h-7 rounded-full border-2 border-slate-600 bg-slate-800 flex items-center justify-center transition-all opacity-40";
-                ball.innerHTML = `
-                    <div class="w-3.5 h-3.5 rounded-full bg-slate-600"></div>
-                `;
-                container.appendChild(ball);
-            }
-        }
-
-        // Mark a caught Pokeball slot as active
-        function markPokeballCaught(index) {
-            const ball = document.getElementById(`pokeball-slot-${index}`);
-            if (ball) {
-                ball.className = "w-7 h-7 rounded-full border-2 border-slate-900 bg-red-500 overflow-hidden relative shadow-md opacity-100 scale-110";
-                ball.innerHTML = `
-                    <div class="absolute bottom-0 w-full h-1/2 bg-white"></div>
-                    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-2.5 h-2.5 bg-white border border-slate-900 rounded-full z-10"></div>
-                `;
-            }
-        }
-
-        // Setup the current enemy
-        function setupEnemy(index) {
-            currentEnemyIdx = index;
-            const enemy = ENEMIES[currentEnemyIdx];
-            enemyCurrentHp = enemy.maxHp;
-
-            document.getElementById('enemyName').textContent = enemy.name;
-            document.getElementById('enemyLevel').textContent = `רמה ${enemy.level}`;
-            document.getElementById('enemyPokemonSprite').innerHTML = enemy.svg;
-
-            updateEnemyHpBar();
-        }
-
-        function updateEnemyHpBar() {
-            const enemy = ENEMIES[currentEnemyIdx];
-            const percent = Math.max(0, Math.min(100, (enemyCurrentHp / enemy.maxHp) * 100));
-            const bar = document.getElementById('enemyHpBar');
-            bar.style.width = percent + '%';
-            
-            if (percent < 25) {
-                bar.className = 'bg-red-500 h-full transition-all duration-500';
-            } else if (percent < 50) {
-                bar.className = 'bg-amber-400 h-full transition-all duration-500';
-            } else {
-                bar.className = 'bg-emerald-500 h-full transition-all duration-500';
-            }
-
-            document.getElementById('enemyHpText').textContent = `${Math.ceil(enemyCurrentHp)} / ${enemy.maxHp}`;
-        }
-
-        function updatePlayerHpBar() {
-            const percent = Math.max(0, Math.min(100, playerHp));
-            const bar = document.getElementById('playerHpBar');
-            bar.style.width = percent + '%';
-
-            if (percent < 30) {
-                bar.className = 'bg-red-500 h-full transition-all duration-500';
-            } else {
-                bar.className = 'bg-emerald-500 h-full transition-all duration-500';
-            }
-
-            document.getElementById('playerHpText').textContent = `${Math.ceil(playerHp)} / 100`;
-        }
-
-        // Render current question
-        function renderQuestion() {
-            const q = QUESTIONS[currentQuestionIdx];
-            document.getElementById('questionProgress').textContent = `שאלה ${currentQuestionIdx + 1} מתוך ${QUESTIONS.length}`;
-            document.getElementById('categoryBadge').textContent = q.category;
-            document.getElementById('questionText').innerHTML = q.text;
-
-            // Visual aid render for ruler
-            const visualContainer = document.getElementById('visualAid');
-            if (q.hasRuler) {
-                visualContainer.classList.remove('hidden');
-                visualContainer.innerHTML = `
-                    <div class="w-full max-w-md flex flex-col items-center">
-                        <!-- Pencil illustration -->
-                        <div class="w-full relative h-10 mb-2">
-                            <div class="absolute h-6 bg-amber-400 border-2 border-slate-900 rounded-l flex items-center shadow"
-                                 style="left: calc((2 / 12) * 100%); width: calc((6 / 12) * 100%);">
-                                <div class="w-full h-1 bg-yellow-200"></div>
-                                <!-- Pencil Tip -->
-                                <div class="absolute -right-4 w-0 h-0 border-y-8 border-y-transparent border-l-16 border-l-amber-200" style="border-left: 16px solid #fef08a;"></div>
-                                <div class="absolute -right-4 w-0 h-0 border-y-8 border-y-transparent border-l-8 border-l-slate-900" style="border-left: 8px solid #0f172a;"></div>
-                            </div>
-                        </div>
-                        <!-- Ruler -->
-                        <div class="w-full bg-yellow-100 text-slate-900 border-2 border-slate-800 rounded p-1 flex justify-between relative font-mono text-xs select-none shadow">
-                            ${[0,1,2,3,4,5,6,7,8,9,10,11,12].map(n => `
-                                <div class="flex flex-col items-center flex-1 text-center">
-                                    <div class="h-3 w-0.5 bg-slate-800 mb-0.5"></div>
-                                    <span class="font-bold text-[10px] sm:text-xs">${n}</span>
-                                </div>
-                            `).join('')}
-                        </div>
-                        <div class="text-xs text-yellow-300 font-bold mt-1.5">הסרגל בסנטימטרים (ס״מ)</div>
-                    </div>
-                `;
-            } else {
-                visualContainer.classList.add('hidden');
-                visualContainer.innerHTML = '';
-            }
-
-            // Shuffle and render options
-            const grid = document.getElementById('answersGrid');
-            grid.innerHTML = '';
-
-            // Map options with original indices
-            const opts = q.options.map((optText, index) => ({ text: optText, origIdx: index }));
-            // Shuffle
-            opts.sort(() => Math.random() - 0.5);
-
-            opts.forEach((item, i) => {
-                const btn = document.createElement('button');
-                btn.className = "bg-slate-700/80 hover:bg-yellow-500 hover:text-slate-950 text-white font-extrabold text-base sm:text-lg p-3.5 sm:p-4 rounded-2xl border-2 border-slate-600 hover:border-yellow-300 transition-all shadow-md transform active:scale-95 text-center flex items-center justify-center gap-2";
-                btn.innerHTML = `<span class="inline-block w-6 h-6 rounded-full bg-slate-900/60 text-yellow-300 text-xs flex items-center justify-center font-mono">${i+1}</span> <span>${item.text}</span>`;
-                btn.onclick = () => handleAnswer(item.origIdx, btn);
-                grid.appendChild(btn);
-            });
-
-            isProcessingAction = false;
-        }
-
-        // Handle player answering
-        function handleAnswer(selectedIdx, clickedBtn) {
-            if (isProcessingAction) return;
-            isProcessingAction = true;
-
-            const q = QUESTIONS[currentQuestionIdx];
-            const isCorrect = (selectedIdx === q.correct);
-
-            // Disable all option buttons
-            const allBtns = document.getElementById('answersGrid').querySelectorAll('button');
-            allBtns.forEach(b => b.disabled = true);
-
-            if (isCorrect) {
-                // Correct styling
-                clickedBtn.className = "bg-emerald-600 text-white font-extrabold text-base sm:text-lg p-3.5 sm:p-4 rounded-2xl border-2 border-emerald-300 shadow-xl";
-                playCorrectSound();
-                score += 100 + (streak * 20);
-                streak++;
-                document.getElementById('scoreDisplay').textContent = score;
-                document.getElementById('streakDisplay').textContent = streak;
-
-                // Player attack animation
-                triggerPlayerAttack(q.explanation);
-
-            } else {
-                // Wrong styling
-                clickedBtn.className = "bg-rose-600 text-white font-extrabold text-base sm:text-lg p-3.5 sm:p-4 rounded-2xl border-2 border-rose-300 shadow-xl";
-                playWrongSound();
-                streak = 0;
-                document.getElementById('streakDisplay').textContent = streak;
-
-                // Enemy counter-attacks
-                triggerEnemyCounterAttack(q.explanation);
-            }
-        }
-
-        // Player attacks enemy
-        function triggerPlayerAttack(explanation) {
-            const battleBox = document.getElementById('battleText');
-            battleBox.innerHTML = `⚡ נכון מאוד! פיקאצ'ו תוקף ב<strong>מכת ברק מחשמלת (Thunderbolt)!</strong>`;
-
-            const playerSprite = document.getElementById('playerSprite');
-            playerSprite.classList.add('player-attack');
-            playAttackSound();
-
-            const lightning = document.getElementById('lightningOverlay');
-            lightning.classList.remove('hidden');
-
-            setTimeout(() => {
-                lightning.classList.add('hidden');
-                playerSprite.classList.remove('player-attack');
-
-                // Enemy takes damage
-                const enemySprite = document.getElementById('enemyPokemonSprite');
-                enemySprite.classList.add('shake-animation');
-                playHitSound();
-
-                // Calculate damage to distribute across questions
-                const questionsPerEnemy = Math.ceil(QUESTIONS.length / ENEMIES.length);
-                const damage = ENEMIES[currentEnemyIdx].maxHp / (questionsPerEnemy - 0.2);
-                enemyCurrentHp = Math.max(0, enemyCurrentHp - damage);
-                updateEnemyHpBar();
-
-                setTimeout(() => {
-                    enemySprite.classList.remove('shake-animation');
-                    battleBox.innerHTML = `💡 <span class="text-emerald-300">${explanation}</span>`;
-
-                    setTimeout(() => {
-                        checkBattleOutcome();
-                    }, 1400);
-                }, 400);
-
-            }, 400);
-        }
-
-        // Enemy attacks player on mistake
-        function triggerEnemyCounterAttack(explanation) {
-            const battleBox = document.getElementById('battleText');
-            const enemy = ENEMIES[currentEnemyIdx];
-            battleBox.innerHTML = `❌ לא מדויק! ${enemy.name} משתמש במתקפת נגד!`;
-
-            const enemySprite = document.getElementById('enemyPokemonSprite');
-            enemySprite.classList.add('enemy-attack');
-
-            setTimeout(() => {
-                enemySprite.classList.remove('enemy-attack');
-                const playerSprite = document.getElementById('playerSprite');
-                playerSprite.classList.add('shake-animation');
-                playHitSound();
-
-                playerHp = Math.max(20, playerHp - 15); // Don't let player faint completely to keep it friendly and encouraging
-                updatePlayerHpBar();
-
-                setTimeout(() => {
-                    playerSprite.classList.remove('shake-animation');
-                    battleBox.innerHTML = `📌 הסבר חשוב: <span class="text-amber-300">${explanation}</span> בואו נמשיך!`;
-
-                    setTimeout(() => {
-                        advanceToNextQuestion();
-                    }, 2400);
-                }, 400);
-
-            }, 400);
-        }
-
-        // Check if enemy defeated or move to next question
-        function checkBattleOutcome() {
-            if (enemyCurrentHp <= 0) {
-                // Enemy fainted! Catch sequence!
-                playCatchSequence();
-            } else {
-                advanceToNextQuestion();
-            }
-        }
-
-        // Catch sequence
-        function playCatchSequence() {
-            const enemySprite = document.getElementById('enemyPokemonSprite');
-            const pokeball = document.getElementById('capturePokeball');
-            const battleBox = document.getElementById('battleText');
-
-            battleBox.innerHTML = `🎯 כוחו של הפוקימון אזל! זורקים פוכדור לתפיסה!`;
-            pokeball.classList.remove('hidden');
-            pokeball.classList.add('pokeball-throw');
-            playCatchSound();
-
-            setTimeout(() => {
-                enemySprite.style.opacity = '0';
-                pokeball.classList.remove('pokeball-throw');
-                pokeball.classList.add('pokeball-wobble');
-
-                setTimeout(() => {
-                    markPokeballCaught(currentEnemyIdx);
-                    caughtCount++;
-
-                    // Show celebration modal
-                    const modal = document.getElementById('rewardModal');
-                    const enemy = ENEMIES[currentEnemyIdx];
-                    document.getElementById('modalTitle').textContent = `תפסתם את ${enemy.name}! 🌟`;
-                    document.getElementById('modalDesc').textContent = `קרב מעולה! הידע שלכם בחשבון עזר לפיקאצ'ו לנצח ולצרף חבר חדש לפוקידע!`;
-                    modal.classList.remove('hidden');
-                }, 1600);
-            }, 900);
-        }
-
-        function nextBattle() {
-            document.getElementById('rewardModal').classList.add('hidden');
-            const pokeball = document.getElementById('capturePokeball');
-            pokeball.classList.add('hidden');
-            pokeball.classList.remove('pokeball-wobble');
-
-            const enemySprite = document.getElementById('enemyPokemonSprite');
-            enemySprite.style.opacity = '1';
-
-            // Next enemy if available
-            if (currentEnemyIdx < ENEMIES.length - 1) {
-                setupEnemy(currentEnemyIdx + 1);
-            }
-
-            // Heal player slightly for next battle
-            playerHp = Math.min(100, playerHp + 25);
-            updatePlayerHpBar();
-
-            advanceToNextQuestion();
-        }
-
-        function advanceToNextQuestion() {
-            currentQuestionIdx++;
-            if (currentQuestionIdx < QUESTIONS.length) {
-                renderQuestion();
-                document.getElementById('battleText').textContent = `מוכנים לשאלה הבאה? חשבו היטב!`;
-            } else {
-                // Game finished - show final victory!
-                showVictoryScreen();
-            }
-        }
-
-        function showVictoryScreen() {
-            document.getElementById('finalScore').textContent = score;
-            document.getElementById('finalCaptured').textContent = `${caughtCount} / ${ENEMIES.length}`;
-            document.getElementById('victoryScreen').classList.remove('hidden');
-            playCatchSound();
-        }
-
-        function restartGame() {
-            currentQuestionIdx = 0;
-            score = 0;
-            streak = 0;
-            playerHp = 100;
-            caughtCount = 0;
-            document.getElementById('scoreDisplay').textContent = 0;
-            document.getElementById('streakDisplay').textContent = 0;
-            document.getElementById('victoryScreen').classList.add('hidden');
-            document.getElementById('rewardModal').classList.add('hidden');
-
-            initPokeballs();
-            setupEnemy(0);
-            updatePlayerHpBar();
-            renderQuestion();
-            document.getElementById('battleText').textContent = "פוקימון פראי הופיע! ענו על שאלת החשבון כדי לתקוף!";
-        }
-
-        // Start game on window load
-        window.onload = function() {
-            initPokeballs();
-            setupEnemy(0);
-            updatePlayerHpBar();
-            renderQuestion();
+      `;
+    }
+
+    const inputHolder = document.getElementById('input-controls-holder');
+    inputHolder.innerHTML = '';
+
+    if (q.type === 'choice') {
+      const grid = document.createElement('div');
+      grid.className = 'choices-grid';
+      q.options.forEach(opt => {
+        const btn = document.createElement('button');
+        btn.className = 'choice-card';
+        btn.innerText = opt.label;
+        btn.onclick = () => {
+          document.querySelectorAll('.choice-card').forEach(c => c.classList.remove('selected'));
+          btn.classList.add('selected');
+          activeSelectedChoice = opt.value;
         };
-    </script>
-</body>
-</html>
+        grid.appendChild(btn);
+      });
+      inputHolder.appendChild(grid);
+    } else {
+      const row = document.createElement('div');
+      row.className = 'input-row';
+      row.innerHTML = `
+        <label for="free-answer-box">הקלידו את התשובה:</label>
+        <input type="number" id="free-answer-box" class="custom-input" placeholder="?" autocomplete="off">
+      `;
+      inputHolder.appendChild(row);
+      setTimeout(() => {
+        const box = document.getElementById('free-answer-box');
+        if (box) box.focus();
+      }, 100);
+    }
+
+    speakCurrentQuestion();
+  }
+
+  function speakCurrentQuestion() {
+    const q = mathQuestions[currentQuestionIndex];
+    speakSentence(q.title + ". " + q.text);
+  }
+
+  function submitUserAnswer() {
+    const q = mathQuestions[currentQuestionIndex];
+    let userVal = '';
+
+    if (q.type === 'choice') {
+      if (!activeSelectedChoice) {
+        alert('אנא בחרו אחת מהאפשרויות לפני הבדיקה!');
+        return;
+      }
+      userVal = activeSelectedChoice;
+    } else {
+      const input = document.getElementById('free-answer-box');
+      if (!input || input.value.trim() === '') {
+        alert('אנא הקלידו מספר בתיבת התשובה!');
+        return;
+      }
+      userVal = input.value.trim();
